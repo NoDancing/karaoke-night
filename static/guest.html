@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Karaoke Night — Add a Song</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0d0d;
+      color: #fff;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    h1 { font-size: 1.8rem; margin-bottom: 8px; letter-spacing: 2px; }
+    p.subtitle { color: #888; margin-bottom: 32px; font-size: 0.95rem; }
+    form {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    label { font-size: 0.85rem; color: #aaa; margin-bottom: 4px; display: block; }
+    input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 1rem;
+    }
+    input:focus { outline: none; border-color: #f0c040; }
+    button {
+      padding: 14px;
+      border-radius: 8px;
+      border: none;
+      background: #f0c040;
+      color: #0d0d0d;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #message {
+      margin-top: 24px;
+      font-size: 1rem;
+      text-align: center;
+      min-height: 1.5em;
+    }
+    #message.success { color: #4caf50; }
+    #message.error { color: #f44336; }
+  </style>
+</head>
+<body>
+  <h1>🎤 Karaoke Night</h1>
+  <p class="subtitle">Add a song to the queue</p>
+  <form id="song-form">
+    <div>
+      <label for="singer">Your name</label>
+      <input id="singer" type="text" placeholder="e.g. Alice" required autocomplete="off" />
+    </div>
+    <div>
+      <label for="url">YouTube URL</label>
+      <input id="url" type="url" placeholder="https://youtube.com/watch?v=..." required autocomplete="off" />
+    </div>
+    <button type="submit" id="submit-btn">Add to Queue</button>
+  </form>
+  <div id="message"></div>
+
+  <script>
+    const form = document.getElementById('song-form');
+    const msg = document.getElementById('message');
+    const btn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btn.disabled = true;
+      msg.textContent = '';
+      msg.className = '';
+
+      const singer = document.getElementById('singer').value.trim();
+      const url = document.getElementById('url').value.trim();
+
+      try {
+        const res = await fetch('/queue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ singer, url }),
+        });
+        if (res.ok) {
+          msg.textContent = `You're in the queue, ${singer}!`;
+          msg.className = 'success';
+          form.reset();
+        } else {
+          const data = await res.json();
+          msg.textContent = data.detail || 'Something went wrong.';
+          msg.className = 'error';
+        }
+      } catch {
+        msg.textContent = 'Could not reach the server.';
+        msg.className = 'error';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

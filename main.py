@@ -18,6 +18,11 @@ def host():
     return RedirectResponse(url="/static/host.html")
 
 
+@app.get("/guest")
+def guest():
+    return RedirectResponse(url="/static/guest.html")
+
+
 class SongRequest(BaseModel):
     url: str
     singer: str
