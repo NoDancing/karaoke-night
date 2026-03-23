@@ -25,6 +25,11 @@
 **Alternatives considered:** React, HTMX
 **Why:** No build step, easy to read and modify. React is overkill for a project this size. Keeping it simple makes the backend decisions the focus.
 
+## 012 — nginx as reverse proxy, port 8000 not exposed publicly
+**Decision:** nginx listens on 80/443 and proxies to uvicorn on port 8000; port 8000 is not open in the security group
+**Alternatives considered:** Exposing port 8000 directly
+**Why:** nginx handles TLS termination via Certbot, WebSocket upgrades cleanly, and is the standard approach. Keeps the app process off a privileged port and makes HTTPS straightforward.
+
 ## 011 — Docker + GitHub Actions for deployment
 **Decision:** Containerize with Docker, deploy via GitHub Actions to EC2
 **Alternatives considered:** Manual EC2 setup, bare uvicorn with systemd

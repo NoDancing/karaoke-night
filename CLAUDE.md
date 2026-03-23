@@ -38,10 +38,10 @@ karaoke-night — a real-time karaoke queue app. Guests submit YouTube URLs from
 - [x] Step 7: Background music between songs
 - [x] Unit tests
 - [x] Docker + GitHub Actions CI/CD
-- [ ] EC2 deployment with nginx + HTTPS
+- [x] EC2 deployment with nginx + HTTPS
 
 ## What's Next
-Setting up nginx as a reverse proxy on EC2, then HTTPS via Certbot once the domain is pointed.
+Build is complete. App is live at https://karaoke.seanvcohan.com.
 
 ## Documentation Rules
 - After every feature, update the Current Status in CLAUDE.md

@@ -82,12 +82,27 @@ The app runs on EC2 behind Docker. On every push to `main`, GitHub Actions build
    curl -fsSL https://get.docker.com | sh
    sudo usermod -aG docker ubuntu
    ```
-3. Clone the repo:
+3. Install nginx and Certbot:
+   ```bash
+   sudo apt-get install -y nginx certbot python3-certbot-nginx
+   ```
+4. Write an nginx config at `/etc/nginx/sites-available/karaoke-night` that proxies port 80 → 8000, with WebSocket upgrade support for `/ws`. Set `server_name` to your domain.
+5. Enable the config and reload nginx:
+   ```bash
+   sudo ln -sf /etc/nginx/sites-available/karaoke-night /etc/nginx/sites-enabled/
+   sudo rm -f /etc/nginx/sites-enabled/default
+   sudo nginx -t && sudo systemctl reload nginx
+   ```
+6. Get a free HTTPS cert (auto-renews):
+   ```bash
+   sudo certbot --nginx -d your-domain.com --non-interactive --agree-tos -m you@email.com
+   ```
+7. Clone the repo:
    ```bash
    git clone https://github.com/NoDancing/karaoke-night.git ~/karaoke-night
    ```
-4. Add two secrets to GitHub (`Settings → Secrets → Actions`):
-   - `EC2_HOST` — your EC2 public IP or domain
+8. Add two secrets to GitHub (`Settings → Secrets → Actions`):
+   - `EC2_HOST` — your domain
    - `EC2_SSH_KEY` — contents of your `.pem` key file
 
 After that, every push to `main` deploys automatically.
