@@ -25,6 +25,11 @@
 **Alternatives considered:** React, HTMX
 **Why:** No build step, easy to read and modify. React is overkill for a project this size. Keeping it simple makes the backend decisions the focus.
 
+## 013 — bgutil-ytdlp-pot-provider for YouTube PO token generation
+**Decision:** Use `bgutil-ytdlp-pot-provider` pip plugin + companion Node.js server to generate YouTube PO tokens
+**Alternatives considered:** `android_vr` player client (no cookies, works for most videos but not all), cookies alone (n-challenge blocks it without JS runtime), EJS with node (node unavailable without JSDist)
+**Why:** YouTube requires PO tokens for authenticated requests from data center IPs. The `android_vr` client bypasses this for popular videos but fails for others. `bgutil-ytdlp-pot-provider` is the standard solution — it runs a local token server that yt-dlp calls automatically via plugin. Requires Node.js + npm in the Docker image and a startup script to run both services.
+
 ## 012 — nginx as reverse proxy, port 8000 not exposed publicly
 **Decision:** nginx listens on 80/443 and proxies to uvicorn on port 8000; port 8000 is not open in the security group
 **Alternatives considered:** Exposing port 8000 directly

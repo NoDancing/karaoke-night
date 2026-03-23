@@ -41,7 +41,11 @@ karaoke-night — a real-time karaoke queue app. Guests submit YouTube URLs from
 - [x] EC2 deployment with nginx + HTTPS
 
 ## What's Next
-Build is complete. App is live at https://karaoke.seanvcohan.com.
+YouTube PO token fix: implement `bgutil-ytdlp-pot-provider` so all YouTube videos work from EC2, not just popular ones. Requires:
+- Add Node.js + npm to Dockerfile
+- Add `bgutil-ytdlp-pot-provider` to requirements.txt
+- Add `start.sh` to run bgutil server + uvicorn together
+- Update yt-dlp opts in main.py to use `web` client + cookies
 
 ## Documentation Rules
 - After every feature, update the Current Status in CLAUDE.md
