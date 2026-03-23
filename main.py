@@ -120,7 +120,7 @@ def get_background_url():
 def get_background_stream():
     if not background_url:
         raise HTTPException(status_code=404, detail="No background music URL set")
-    ydl_opts = {"format": "bestaudio/best", "quiet": True, "extractor_args": {"youtube": {"player_client": ["android_vr"]}}}
+    ydl_opts = {"format": "bestaudio/best", "quiet": True, "cookiefile": "cookies.txt"}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(background_url, download=False)
     return {"stream_url": info["url"]}
@@ -131,7 +131,7 @@ def get_stream():
     if not queue:
         raise HTTPException(status_code=404, detail="Queue is empty")
     url = queue[0]["url"]
-    ydl_opts = {"format": "best[ext=mp4]/best", "quiet": True, "extractor_args": {"youtube": {"player_client": ["android_vr"]}}}
+    ydl_opts = {"format": "best[ext=mp4]/best", "quiet": True, "cookiefile": "cookies.txt"}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
     return {"stream_url": info["url"], "title": info.get("title", "")}
