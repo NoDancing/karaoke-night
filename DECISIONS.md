@@ -25,6 +25,11 @@
 **Alternatives considered:** React, HTMX
 **Why:** No build step, easy to read and modify. React is overkill for a project this size. Keeping it simple makes the backend decisions the focus.
 
+## 009 — Test dependencies in requirements-dev.txt
+**Decision:** `pytest` and `httpx` live in `requirements-dev.txt`, which includes prod deps via `-r requirements.txt`
+**Alternatives considered:** Single `requirements.txt` with all deps
+**Why:** Keeps the production install lean — no test tooling needed at runtime.
+
 ## 008 — QR code generated client-side via qrcodejs
 **Decision:** Generate QR code in the browser using the `qrcodejs` CDN library
 **Alternatives considered:** Server-side generation with `qrcode[pil]` or `segno`

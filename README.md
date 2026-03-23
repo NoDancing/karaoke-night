@@ -40,6 +40,17 @@ Open `http://localhost:8000/host` on the screen guests will watch. It will:
 - Wake up every 10 seconds when the queue is empty
 - Displays a QR code in the corner — guests scan it to open the submission page
 
+## Testing
+
+Install dev dependencies and run the test suite:
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest tests/ -v
+```
+
+Tests cover all API endpoints and WebSocket broadcasting.
+
 ## Admin Controls
 
 Open `http://localhost:8000/admin` on the host's device. Controls:
