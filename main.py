@@ -125,6 +125,7 @@ def get_background_stream():
         "quiet": True,
         "cookiefile": "cookies.txt",
         "extractor_args": {"youtubepot-bgutilhttp": {"base_url": ["http://bgutil:4416"]}},
+        "js_runtimes": {"node": {}},
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(background_url, download=False)
@@ -141,6 +142,7 @@ def get_stream():
         "quiet": True,
         "cookiefile": "cookies.txt",
         "extractor_args": {"youtubepot-bgutilhttp": {"base_url": ["http://bgutil:4416"]}},
+        "js_runtimes": {"node": {}},
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
