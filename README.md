@@ -5,7 +5,7 @@ Simple interface for queuing and playing karaoke clips off of youtube.
 ## How This Works
 
 - Host sets up on laptop
-- Guests submit youtube URLs from their phone
+
 - Host screen plays when it's time
 - Background music fills silence between songs
 
@@ -50,6 +50,10 @@ python -m pytest tests/ -v
 ```
 
 Tests cover all API endpoints and WebSocket broadcasting.
+
+## Background Music
+
+On the admin page, paste a YouTube URL into the Background Music field and hit Save. The host screen will play it as audio-only whenever the queue is empty, and stop automatically when the next singer's video starts.
 
 ## Admin Controls
 

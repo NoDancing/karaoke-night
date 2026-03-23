@@ -70,6 +70,7 @@
     <video id="player" controls autoplay></video>
   </div>
   <div id="idle-msg">No songs in the queue yet. Have guests add songs!</div>
+  <audio id="bg-audio" loop></audio>
   <div id="qr-box">
     <div id="qr-code"></div>
     <p>Scan to add a song</p>
@@ -81,9 +82,26 @@
 
   <script>
     const video = document.getElementById('player');
+    const bgAudio = document.getElementById('bg-audio');
     let currentSong = null;
     let queue = [];
     let advancing = false;
+
+    async function startBackground() {
+      if (bgAudio.src && !bgAudio.paused) return;
+      try {
+        const res = await fetch('/background/stream');
+        if (!res.ok) return;
+        const { stream_url } = await res.json();
+        bgAudio.src = stream_url;
+        bgAudio.play();
+      } catch {}
+    }
+
+    function stopBackground() {
+      bgAudio.pause();
+      bgAudio.src = '';
+    }
 
     function escHtml(str) {
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -127,8 +145,10 @@
         if (queue.length === 0) {
           currentSong = null;
           showIdle();
+          startBackground();
           return;
         }
+        stopBackground();
         showPlayer();
         currentSong = queue[0];
         document.getElementById('now-playing').textContent = `Now singing: ${currentSong.singer}`;

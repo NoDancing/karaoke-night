@@ -13,6 +13,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 queue: List[dict] = []
 clients: set[WebSocket] = set()
+background_url: str | None = None
 
 
 async def broadcast():
@@ -97,6 +98,32 @@ async def reorder_queue(body: ReorderRequest):
     queue.extend(id_to_entry[i] for i in body.ids)
     await broadcast()
     return queue
+
+
+class BackgroundUrlRequest(BaseModel):
+    url: str
+
+
+@app.put("/background/url", status_code=200)
+def set_background_url(body: BackgroundUrlRequest):
+    global background_url
+    background_url = body.url
+    return {"url": background_url}
+
+
+@app.get("/background/url")
+def get_background_url():
+    return {"url": background_url}
+
+
+@app.get("/background/stream")
+def get_background_stream():
+    if not background_url:
+        raise HTTPException(status_code=404, detail="No background music URL set")
+    ydl_opts = {"format": "bestaudio/best", "quiet": True}
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(background_url, download=False)
+    return {"stream_url": info["url"]}
 
 
 @app.get("/queue/current/stream")

@@ -25,6 +25,11 @@
 **Alternatives considered:** React, HTMX
 **Why:** No build step, easy to read and modify. React is overkill for a project this size. Keeping it simple makes the backend decisions the focus.
 
+## 010 — Background music uses bestaudio format via yt-dlp
+**Decision:** `/background/stream` requests `bestaudio/best` from yt-dlp; played in a looping `<audio>` element
+**Alternatives considered:** Same `best[ext=mp4]` format as karaoke songs
+**Why:** Background music doesn't need video. Audio-only is lighter and keeps the two playback concerns clearly separate on the host page.
+
 ## 009 — Test dependencies in requirements-dev.txt
 **Decision:** `pytest` and `httpx` live in `requirements-dev.txt`, which includes prod deps via `-r requirements.txt`
 **Alternatives considered:** Single `requirements.txt` with all deps
