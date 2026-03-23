@@ -25,6 +25,11 @@
 **Alternatives considered:** React, HTMX
 **Why:** No build step, easy to read and modify. React is overkill for a project this size. Keeping it simple makes the backend decisions the focus.
 
+## 008 — QR code generated client-side via qrcodejs
+**Decision:** Generate QR code in the browser using the `qrcodejs` CDN library
+**Alternatives considered:** Server-side generation with `qrcode[pil]` or `segno`
+**Why:** The guest URL depends on the host's hostname, which the server doesn't know reliably. The browser does — so client-side generation means the QR code always points to the correct address without configuration. No Python dependencies added.
+
 ## 007 — WebSocket broadcasts full queue on every change
 **Decision:** Send the full queue JSON to all clients on every add or remove
 **Alternatives considered:** Diff/event-based messages

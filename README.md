@@ -38,6 +38,7 @@ Open `http://localhost:8000/host` on the screen guests will watch. It will:
 - Display upcoming songs
 - Advance automatically when a video ends
 - Wake up every 10 seconds when the queue is empty
+- Displays a QR code in the corner — guests scan it to open the submission page
 
 ## Admin Controls
 

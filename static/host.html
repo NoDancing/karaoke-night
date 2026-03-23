@@ -51,6 +51,16 @@
     }
     #queue-list li .singer { color: #f0c040; }
     #queue-list li .url { color: #555; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; }
+    #qr-box {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    #qr-box p { color: #000; font-size: 0.75rem; margin-top: 6px; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -60,6 +70,10 @@
     <video id="player" controls autoplay></video>
   </div>
   <div id="idle-msg">No songs in the queue yet. Have guests add songs!</div>
+  <div id="qr-box">
+    <div id="qr-code"></div>
+    <p>Scan to add a song</p>
+  </div>
   <section id="queue-section">
     <h2>Up Next</h2>
     <ul id="queue-list"></ul>
@@ -164,6 +178,17 @@
     }, 10000);
 
     playNext();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script>
+    const guestUrl = `${location.protocol}//${location.host}/guest`;
+    new QRCode(document.getElementById('qr-code'), {
+      text: guestUrl,
+      width: 120,
+      height: 120,
+      colorDark: '#000',
+      colorLight: '#fff',
+    });
   </script>
 </body>
 </html>
