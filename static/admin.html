@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Karaoke Night — Admin</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0d0d;
+      color: #fff;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    h1 { font-size: 1.8rem; margin-bottom: 24px; letter-spacing: 2px; }
+    #skip-btn {
+      padding: 12px 28px;
+      border-radius: 8px;
+      border: none;
+      background: #e53935;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 32px;
+    }
+    #skip-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    #queue-section { width: 100%; max-width: 600px; }
+    #queue-section h2 { font-size: 0.85rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    #queue-list { list-style: none; }
+    #queue-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid #222;
+    }
+    #queue-list li.current { background: #1a1a00; }
+    .song-info { flex: 1; min-width: 0; }
+    .singer { color: #f0c040; font-weight: bold; }
+    .url { color: #555; font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .badge {
+      font-size: 0.7rem;
+      background: #f0c040;
+      color: #000;
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .btn {
+      background: #222;
+      border: 1px solid #444;
+      color: #fff;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .btn:hover { background: #333; }
+    .btn.del { border-color: #e53935; color: #e53935; }
+    .btn.del:hover { background: #1a0000; }
+    #empty-msg { color: #555; text-align: center; padding: 32px; }
+  </style>
+</head>
+<body>
+  <h1>🎤 Admin</h1>
+  <button id="skip-btn">Skip Current Song</button>
+  <section id="queue-section">
+    <h2>Queue</h2>
+    <ul id="queue-list"></ul>
+    <p id="empty-msg" style="display:none">Queue is empty.</p>
+  </section>
+
+  <script>
+    let queue = [];
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function render() {
+      const list = document.getElementById('queue-list');
+      const empty = document.getElementById('empty-msg');
+      const skipBtn = document.getElementById('skip-btn');
+      skipBtn.disabled = queue.length === 0;
+
+      if (queue.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      list.innerHTML = queue.map((s, i) => `
+        <li class="${i === 0 ? 'current' : ''}">
+          ${i === 0 ? '<span class="badge">NOW</span>' : ''}
+          <div class="song-info">
+            <div class="singer">${escHtml(s.singer)}</div>
+            <div class="url">${escHtml(s.url)}</div>
+          </div>
+          <button class="btn" onclick="move('${s.id}', -1)" ${i === 0 ? 'disabled' : ''}>↑</button>
+          <button class="btn" onclick="move('${s.id}', 1)" ${i === queue.length - 1 ? 'disabled' : ''}>↓</button>
+          <button class="btn del" onclick="remove('${s.id}')">✕</button>
+        </li>
+      `).join('');
+    }
+
+    async function remove(id) {
+      await fetch(`/queue/${id}`, { method: 'DELETE' });
+    }
+
+    async function move(id, direction) {
+      const idx = queue.findIndex(s => s.id === id);
+      const newQueue = [...queue];
+      const target = idx + direction;
+      if (target < 0 || target >= newQueue.length) return;
+      [newQueue[idx], newQueue[target]] = [newQueue[target], newQueue[idx]];
+      await fetch('/queue/reorder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: newQueue.map(s => s.id) }),
+      });
+    }
+
+    document.getElementById('skip-btn').addEventListener('click', async () => {
+      if (queue.length === 0) return;
+      await remove(queue[0].id);
+    });
+
+    function connectWS() {
+      const ws = new WebSocket(`ws://${location.host}/ws`);
+      ws.onmessage = (e) => {
+        queue = JSON.parse(e.data);
+        render();
+      };
+      ws.onclose = () => setTimeout(connectWS, 2000);
+    }
+    connectWS();
+  </script>
+</body>
+</html>

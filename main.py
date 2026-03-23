@@ -34,6 +34,11 @@ def guest():
     return RedirectResponse(url="/static/guest.html")
 
 
+@app.get("/admin")
+def admin():
+    return RedirectResponse(url="/static/admin.html")
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -77,6 +82,21 @@ async def remove_song(song_id: str):
             await broadcast()
             return
     raise HTTPException(status_code=404, detail="Song not found")
+
+
+class ReorderRequest(BaseModel):
+    ids: List[str]
+
+
+@app.put("/queue/reorder", status_code=200)
+async def reorder_queue(body: ReorderRequest):
+    id_to_entry = {e["id"]: e for e in queue}
+    if set(body.ids) != set(id_to_entry.keys()):
+        raise HTTPException(status_code=400, detail="IDs do not match current queue")
+    queue.clear()
+    queue.extend(id_to_entry[i] for i in body.ids)
+    await broadcast()
+    return queue
 
 
 @app.get("/queue/current/stream")
