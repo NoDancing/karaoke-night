@@ -83,7 +83,8 @@
     let ws = null;
 
     function connectWS() {
-      ws = new WebSocket(`ws://${location.host}/ws`);
+      const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${wsProto}//${location.host}/ws`);
       ws.onmessage = (e) => {
         if (!myId) return;
         const queue = JSON.parse(e.data);

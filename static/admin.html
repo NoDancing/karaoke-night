@@ -174,7 +174,8 @@
     loadBackgroundUrl();
 
     function connectWS() {
-      const ws = new WebSocket(`ws://${location.host}/ws`);
+      const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const ws = new WebSocket(`${wsProto}//${location.host}/ws`);
       ws.onmessage = (e) => {
         queue = JSON.parse(e.data);
         render();
