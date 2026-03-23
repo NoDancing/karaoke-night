@@ -29,13 +29,19 @@ karaoke-night — a real-time karaoke queue app. Guests submit YouTube URLs from
 - [x] README.md written
 - [x] DECISIONS.md started
 - [x] CLAUDE.md created
-- [ ] Step 1: FastAPI server + queue API
+- [x] Step 1: FastAPI server + queue API
+- [x] Step 2: Host playback page (yt-dlp stream extraction, auto-advances)
+- [x] Step 3: Guest submission page
+- [x] Step 4: Real-time updates via WebSocket
+- [x] Step 5: Admin controls (skip, reorder, delete)
+- [x] Step 6: QR code on host screen
+- [x] Step 7: Background music between songs
+- [x] Unit tests
+- [x] Docker + GitHub Actions CI/CD
+- [ ] EC2 deployment with nginx + HTTPS
 
 ## What's Next
-Step 1. Basic FastAPI server with three endpoints:
-- POST /queue — add a song
-- GET /queue — list the queue
-- DELETE /queue/{id} — remove a song
+Setting up nginx as a reverse proxy on EC2, then HTTPS via Certbot once the domain is pointed.
 
 ## Documentation Rules
 - After every feature, update the Current Status in CLAUDE.md
