@@ -1,12 +1,21 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from typing import List
 import uuid
 from datetime import datetime
+import yt_dlp
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 queue: List[dict] = []
+
+
+@app.get("/host")
+def host():
+    return RedirectResponse(url="/static/host.html")
 
 
 class SongRequest(BaseModel):
@@ -38,3 +47,14 @@ def remove_song(song_id: str):
             queue.pop(i)
             return
     raise HTTPException(status_code=404, detail="Song not found")
+
+
+@app.get("/queue/current/stream")
+def get_stream():
+    if not queue:
+        raise HTTPException(status_code=404, detail="Queue is empty")
+    url = queue[0]["url"]
+    ydl_opts = {"format": "best[ext=mp4]/best", "quiet": True}
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+    return {"stream_url": info["url"], "title": info.get("title", "")}

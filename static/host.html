@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Karaoke Night — Host</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0d0d;
+      color: #fff;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    h1 { font-size: 2rem; margin-bottom: 8px; letter-spacing: 2px; }
+    #now-playing {
+      font-size: 1.2rem;
+      color: #f0c040;
+      margin-bottom: 16px;
+      min-height: 1.5em;
+    }
+    #player-wrapper {
+      width: 100%;
+      max-width: 860px;
+      aspect-ratio: 16/9;
+      background: #111;
+      margin-bottom: 24px;
+    }
+    #player-wrapper video {
+      width: 100%;
+      height: 100%;
+    }
+    #idle-msg {
+      display: none;
+      font-size: 1.4rem;
+      color: #888;
+      text-align: center;
+      padding: 40px;
+    }
+    #queue-section { width: 100%; max-width: 860px; }
+    #queue-section h2 { font-size: 1rem; color: #888; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    #queue-list { list-style: none; }
+    #queue-list li {
+      padding: 10px 14px;
+      border-bottom: 1px solid #222;
+      display: flex;
+      justify-content: space-between;
+    }
+    #queue-list li .singer { color: #f0c040; }
+    #queue-list li .url { color: #555; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; }
+  </style>
+</head>
+<body>
+  <h1>🎤 Karaoke Night</h1>
+  <div id="now-playing">Loading queue...</div>
+  <div id="player-wrapper">
+    <video id="player" controls autoplay></video>
+  </div>
+  <div id="idle-msg">No songs in the queue yet. Have guests add songs!</div>
+  <section id="queue-section">
+    <h2>Up Next</h2>
+    <ul id="queue-list"></ul>
+  </section>
+
+  <script>
+    const video = document.getElementById('player');
+    let currentSong = null;
+    let queue = [];
+    let advancing = false;
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function fetchQueue() {
+      const res = await fetch('/queue');
+      queue = await res.json();
+    }
+
+    function renderUpNext() {
+      const list = document.getElementById('queue-list');
+      list.innerHTML = queue.slice(1).map(s =>
+        `<li><span class="singer">${escHtml(s.singer)}</span><span class="url">${escHtml(s.url)}</span></li>`
+      ).join('');
+    }
+
+    function showIdle() {
+      document.getElementById('now-playing').textContent = '';
+      document.getElementById('player-wrapper').style.display = 'none';
+      document.getElementById('idle-msg').style.display = 'block';
+      document.getElementById('queue-list').innerHTML = '';
+    }
+
+    function showPlayer() {
+      document.getElementById('player-wrapper').style.display = 'block';
+      document.getElementById('idle-msg').style.display = 'none';
+    }
+
+    async function removeCurrent() {
+      if (!currentSong) return;
+      await fetch(`/queue/${currentSong.id}`, { method: 'DELETE' });
+      currentSong = null;
+    }
+
+    async function playNext() {
+      if (advancing) return;
+      advancing = true;
+      try {
+        await fetchQueue();
+        if (queue.length === 0) {
+          currentSong = null;
+          showIdle();
+          return;
+        }
+        showPlayer();
+        currentSong = queue[0];
+        document.getElementById('now-playing').textContent = `Now singing: ${currentSong.singer}`;
+        renderUpNext();
+
+        const res = await fetch('/queue/current/stream');
+        if (!res.ok) { showIdle(); return; }
+        const { stream_url } = await res.json();
+        video.src = stream_url;
+        video.play();
+      } finally {
+        advancing = false;
+      }
+    }
+
+    video.addEventListener('ended', async () => {
+      await removeCurrent();
+      await playNext();
+    });
+
+    video.addEventListener('error', async () => {
+      console.error('Video error — skipping');
+      await removeCurrent();
+      await playNext();
+    });
+
+    // Poll every 10s when idle
+    setInterval(async () => {
+      if (!currentSong) {
+        await playNext();
+      } else {
+        await fetchQueue();
+        renderUpNext();
+      }
+    }, 10000);
+
+    playNext();
+  </script>
+</body>
+</html>

@@ -24,3 +24,8 @@
 **Decision:** Vanilla HTML/JS
 **Alternatives considered:** React, HTMX
 **Why:** No build step, easy to read and modify. React is overkill for a project this size. Keeping it simple makes the backend decisions the focus.
+
+## 006 — Host Playback via yt-dlp Stream Extraction
+**Decision:** Backend extracts direct stream URL via yt-dlp; browser plays it in a native `<video>` tag
+**Alternatives considered:** YouTube IFrame API
+**Why:** Avoids any dependency on the YouTube IFrame API and keeps playback consistent with how background music will work in Step 7 (audio-only streams). Stream URLs are fetched fresh on each song start since they expire.

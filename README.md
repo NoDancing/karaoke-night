@@ -28,3 +28,13 @@ Server runs at `http://localhost:8000`. API docs at `http://localhost:8000/docs`
 - `POST /queue` — add a song `{ "url": "...", "singer": "..." }`
 - `GET /queue` — list the queue
 - `DELETE /queue/{id}` — remove a song
+
+## Host Screen
+
+Open `http://localhost:8000/host` on the screen guests will watch. It will:
+- Use yt-dlp to extract a direct stream URL for each song
+- Play video natively in the browser (no YouTube embed)
+- Show the current singer's name
+- Display upcoming songs
+- Advance automatically when a video ends
+- Wake up every 10 seconds when the queue is empty
