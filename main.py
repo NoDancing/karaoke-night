@@ -131,7 +131,7 @@ def get_stream():
     if not queue:
         raise HTTPException(status_code=404, detail="Queue is empty")
     url = queue[0]["url"]
-    ydl_opts = {"format": "best[ext=mp4]/best", "quiet": True, "cookiefile": "cookies.txt"}
+    ydl_opts = {"format": "18/best[height<=480][vcodec!=none][acodec!=none]/best", "quiet": True, "cookiefile": "cookies.txt"}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
     return {"stream_url": info["url"], "title": info.get("title", "")}
