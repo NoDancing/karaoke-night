@@ -79,6 +79,31 @@
     const msg = document.getElementById('message');
     const btn = document.getElementById('submit-btn');
 
+    let myId = null;
+    let ws = null;
+
+    function connectWS() {
+      ws = new WebSocket(`ws://${location.host}/ws`);
+      ws.onmessage = (e) => {
+        if (!myId) return;
+        const queue = JSON.parse(e.data);
+        const pos = queue.findIndex(s => s.id === myId);
+        if (pos === -1) {
+          msg.textContent = "You're up — go sing!";
+          msg.className = 'success';
+          myId = null;
+        } else if (pos === 0) {
+          msg.textContent = "You're next!";
+          msg.className = 'success';
+        } else {
+          msg.textContent = `You're #${pos + 1} in the queue.`;
+          msg.className = 'success';
+        }
+      };
+      ws.onclose = () => setTimeout(connectWS, 2000);
+    }
+    connectWS();
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       btn.disabled = true;
@@ -95,6 +120,8 @@
           body: JSON.stringify({ singer, url }),
         });
         if (res.ok) {
+          const entry = await res.json();
+          myId = entry.id;
           msg.textContent = `You're in the queue, ${singer}!`;
           msg.className = 'success';
           form.reset();

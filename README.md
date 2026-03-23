@@ -39,6 +39,12 @@ Open `http://localhost:8000/host` on the screen guests will watch. It will:
 - Advance automatically when a video ends
 - Wake up every 10 seconds when the queue is empty
 
+## Real-time Updates
+
+All pages stay in sync via WebSocket (`/ws`). When a song is added or removed:
+- The host screen's "Up Next" list updates instantly
+- Guests see their live position in the queue after submitting
+
 ## Guest Page
 
 Guests open `http://localhost:8000/guest` on their phone. They enter their name and a YouTube URL, and it gets added to the queue immediately.

@@ -25,6 +25,11 @@
 **Alternatives considered:** React, HTMX
 **Why:** No build step, easy to read and modify. React is overkill for a project this size. Keeping it simple makes the backend decisions the focus.
 
+## 007 — WebSocket broadcasts full queue on every change
+**Decision:** Send the full queue JSON to all clients on every add or remove
+**Alternatives considered:** Diff/event-based messages
+**Why:** Simpler to reason about at this scale — no client-side state reconciliation needed.
+
 ## 006 — Host Playback via yt-dlp Stream Extraction
 **Decision:** Backend extracts direct stream URL via yt-dlp; browser plays it in a native `<video>` tag
 **Alternatives considered:** YouTube IFrame API

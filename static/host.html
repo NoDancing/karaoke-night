@@ -141,13 +141,25 @@
       await playNext();
     });
 
-    // Poll every 10s when idle
+    // WebSocket for real-time queue updates
+    function connectWS() {
+      const ws = new WebSocket(`ws://${location.host}/ws`);
+      ws.onmessage = (e) => {
+        queue = JSON.parse(e.data);
+        if (!currentSong && queue.length > 0) {
+          playNext();
+        } else {
+          renderUpNext();
+        }
+      };
+      ws.onclose = () => setTimeout(connectWS, 2000);
+    }
+    connectWS();
+
+    // Fallback poll every 10s when idle
     setInterval(async () => {
       if (!currentSong) {
         await playNext();
-      } else {
-        await fetchQueue();
-        renderUpNext();
       }
     }, 10000);
 
