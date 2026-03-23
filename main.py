@@ -137,7 +137,7 @@ def get_stream():
         raise HTTPException(status_code=404, detail="Queue is empty")
     url = queue[0]["url"]
     ydl_opts = {
-        "format": "best[ext=mp4]/best",
+        "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
         "quiet": True,
         "cookiefile": "cookies.txt",
         "extractor_args": {"youtubepot-bgutilhttp": {"base_url": ["http://bgutil:4416"]}},
