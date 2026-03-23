@@ -25,6 +25,11 @@
 **Alternatives considered:** React, HTMX
 **Why:** No build step, easy to read and modify. React is overkill for a project this size. Keeping it simple makes the backend decisions the focus.
 
+## 011 — Docker + GitHub Actions for deployment
+**Decision:** Containerize with Docker, deploy via GitHub Actions to EC2
+**Alternatives considered:** Manual EC2 setup, bare uvicorn with systemd
+**Why:** Keeps EC2 thin — just Docker, no manual dependency management. Redeployment is a single git push. Image is pinned and reproducible.
+
 ## 010 — Background music uses bestaudio format via yt-dlp
 **Decision:** `/background/stream` requests `bestaudio/best` from yt-dlp; played in a looping `<audio>` element
 **Alternatives considered:** Same `best[ext=mp4]` format as karaoke songs

@@ -1,0 +1,6 @@
+services:
+  app:
+    image: ghcr.io/nodancing/karaoke-night:latest
+    ports:
+      - "8000:8000"
+    restart: unless-stopped

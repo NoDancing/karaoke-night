@@ -70,6 +70,28 @@ All pages stay in sync via WebSocket (`/ws`). When a song is added or removed:
 - The host screen's "Up Next" list updates instantly
 - Guests see their live position in the queue after submitting
 
+## Deployment
+
+The app runs on EC2 behind Docker. On every push to `main`, GitHub Actions builds the image, pushes it to GHCR, and deploys to EC2 automatically.
+
+### First-time EC2 setup
+
+1. Launch a t3.small Ubuntu 22.04 instance, open ports 22, 80, and 443
+2. SSH in and install Docker:
+   ```bash
+   curl -fsSL https://get.docker.com | sh
+   sudo usermod -aG docker ubuntu
+   ```
+3. Clone the repo:
+   ```bash
+   git clone https://github.com/NoDancing/karaoke-night.git ~/karaoke-night
+   ```
+4. Add two secrets to GitHub (`Settings → Secrets → Actions`):
+   - `EC2_HOST` — your EC2 public IP or domain
+   - `EC2_SSH_KEY` — contents of your `.pem` key file
+
+After that, every push to `main` deploys automatically.
+
 ## Guest Page
 
 Guests open `http://localhost:8000/guest` on their phone. They enter their name and a YouTube URL, and it gets added to the queue immediately.
