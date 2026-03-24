@@ -13,19 +13,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       min-height: 100vh;
       padding: 24px;
     }
-    h1 { font-size: 1.8rem; margin-bottom: 8px; letter-spacing: 2px; }
+    h1 { font-size: 1.8rem; margin-bottom: 8px; letter-spacing: 2px; margin-top: 16px; }
     p.subtitle { color: #888; margin-bottom: 32px; font-size: 0.95rem; }
-    form {
-      width: 100%;
-      max-width: 420px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    .container { width: 100%; max-width: 480px; }
     label { font-size: 0.85rem; color: #aaa; margin-bottom: 4px; display: block; }
     input {
       width: 100%;
@@ -37,17 +30,81 @@
       font-size: 1rem;
     }
     input:focus { outline: none; border-color: #f0c040; }
+    .field { margin-bottom: 16px; }
+    .search-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .search-row input { flex: 1; }
     button {
-      padding: 14px;
+      padding: 14px 20px;
       border-radius: 8px;
       border: none;
       background: #f0c040;
       color: #0d0d0d;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
+      white-space: nowrap;
     }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.secondary {
+      background: #2a2a2a;
+      color: #aaa;
+      border: 1px solid #333;
+    }
+    #results { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .result-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid #333;
+      background: #1a1a1a;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .result-card:hover { border-color: #555; }
+    .result-card.selected { border-color: #f0c040; background: #1f1c0d; }
+    .result-card img {
+      width: 80px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .result-info { flex: 1; min-width: 0; }
+    .result-title {
+      font-size: 0.95rem;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .result-meta { font-size: 0.8rem; color: #888; margin-top: 3px; }
+    #confirm-section { margin-top: 20px; display: none; }
+    #selected-preview {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid #f0c040;
+      background: #1f1c0d;
+      margin-bottom: 16px;
+    }
+    #selected-preview img {
+      width: 64px;
+      height: 44px;
+      object-fit: cover;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    #selected-preview .result-title { font-size: 0.9rem; }
+    .confirm-buttons { display: flex; gap: 10px; }
+    .confirm-buttons button { flex: 1; padding: 14px; font-size: 1rem; }
     #message {
       margin-top: 24px;
       font-size: 1rem;
@@ -56,29 +113,47 @@
     }
     #message.success { color: #4caf50; }
     #message.error { color: #f44336; }
+    #spinner { display: none; text-align: center; margin-top: 20px; color: #888; font-size: 0.9rem; }
   </style>
 </head>
 <body>
   <h1>🎤 Karaoke Night</h1>
   <p class="subtitle">Add a song to the queue</p>
-  <form id="song-form">
-    <div>
+  <div class="container">
+    <div class="field">
       <label for="singer">Your name</label>
-      <input id="singer" type="text" placeholder="e.g. Alice" required autocomplete="off" />
+      <input id="singer" type="text" placeholder="e.g. Alice" autocomplete="off" />
     </div>
-    <div>
-      <label for="url">YouTube URL</label>
-      <input id="url" type="url" placeholder="https://youtube.com/watch?v=..." required autocomplete="off" />
+    <div class="field">
+      <label for="search">Search for a song</label>
+      <div class="search-row">
+        <input id="search" type="text" placeholder="Artist, song title..." autocomplete="off" />
+        <button id="search-btn" onclick="doSearch()">Search</button>
+      </div>
     </div>
-    <button type="submit" id="submit-btn">Add to Queue</button>
-  </form>
-  <div id="message"></div>
+
+    <div id="spinner">Searching...</div>
+    <div id="results"></div>
+
+    <div id="confirm-section">
+      <div id="selected-preview">
+        <img id="preview-thumb" src="" alt="" />
+        <div class="result-info">
+          <div class="result-title" id="preview-title"></div>
+          <div class="result-meta" id="preview-meta"></div>
+        </div>
+      </div>
+      <div class="confirm-buttons">
+        <button class="secondary" onclick="clearSelection()">Back</button>
+        <button id="add-btn" onclick="addToQueue()">Add to Queue</button>
+      </div>
+    </div>
+
+    <div id="message"></div>
+  </div>
 
   <script>
-    const form = document.getElementById('song-form');
-    const msg = document.getElementById('message');
-    const btn = document.getElementById('submit-btn');
-
+    let selectedSong = null;
     let myId = null;
     let ws = null;
 
@@ -89,6 +164,7 @@
         if (!myId) return;
         const queue = JSON.parse(e.data);
         const pos = queue.findIndex(s => s.id === myId);
+        const msg = document.getElementById('message');
         if (pos === -1) {
           msg.textContent = "You're up — go sing!";
           msg.className = 'success';
@@ -105,27 +181,103 @@
     }
     connectWS();
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      btn.disabled = true;
+    document.getElementById('search').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') doSearch();
+    });
+
+    function formatDuration(seconds) {
+      if (!seconds) return '';
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    async function doSearch() {
+      const q = document.getElementById('search').value.trim();
+      if (!q) return;
+      clearSelection();
+      document.getElementById('results').innerHTML = '';
+      document.getElementById('spinner').style.display = 'block';
+      document.getElementById('search-btn').disabled = true;
+      try {
+        const res = await fetch(`/search?q=${encodeURIComponent(q)}`);
+        const results = await res.json();
+        renderResults(results);
+      } catch {
+        document.getElementById('message').textContent = 'Search failed.';
+        document.getElementById('message').className = 'error';
+      } finally {
+        document.getElementById('spinner').style.display = 'none';
+        document.getElementById('search-btn').disabled = false;
+      }
+    }
+
+    function renderResults(results) {
+      const container = document.getElementById('results');
+      container.innerHTML = '';
+      if (!results.length) {
+        container.innerHTML = '<p style="color:#888;text-align:center">No results found.</p>';
+        return;
+      }
+      results.forEach((song) => {
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        card.innerHTML = `
+          <img src="${song.thumbnail || ''}" alt="" onerror="this.style.display='none'" />
+          <div class="result-info">
+            <div class="result-title">${escapeHtml(song.title || '')}</div>
+            <div class="result-meta">${escapeHtml(song.channel || '')}${song.duration ? ' · ' + formatDuration(song.duration) : ''}</div>
+          </div>
+        `;
+        card.addEventListener('click', () => selectSong(song, card));
+        container.appendChild(card);
+      });
+    }
+
+    function selectSong(song, card) {
+      document.querySelectorAll('.result-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedSong = song;
+      document.getElementById('preview-thumb').src = song.thumbnail || '';
+      document.getElementById('preview-title').textContent = song.title || '';
+      document.getElementById('preview-meta').textContent =
+        (song.channel || '') + (song.duration ? ' · ' + formatDuration(song.duration) : '');
+      document.getElementById('confirm-section').style.display = 'block';
+      document.getElementById('confirm-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function clearSelection() {
+      selectedSong = null;
+      document.querySelectorAll('.result-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('confirm-section').style.display = 'none';
+    }
+
+    async function addToQueue() {
+      if (!selectedSong) return;
+      const singer = document.getElementById('singer').value.trim();
+      if (!singer) {
+        document.getElementById('singer').focus();
+        return;
+      }
+      const addBtn = document.getElementById('add-btn');
+      addBtn.disabled = true;
+      const msg = document.getElementById('message');
       msg.textContent = '';
       msg.className = '';
-
-      const singer = document.getElementById('singer').value.trim();
-      const url = document.getElementById('url').value.trim();
-
       try {
         const res = await fetch('/queue', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ singer, url }),
+          body: JSON.stringify({ singer, url: selectedSong.url }),
         });
         if (res.ok) {
           const entry = await res.json();
           myId = entry.id;
           msg.textContent = `You're in the queue, ${singer}!`;
           msg.className = 'success';
-          form.reset();
+          document.getElementById('results').innerHTML = '';
+          document.getElementById('search').value = '';
+          clearSelection();
         } else {
           const data = await res.json();
           msg.textContent = data.detail || 'Something went wrong.';
@@ -135,9 +287,13 @@
         msg.textContent = 'Could not reach the server.';
         msg.className = 'error';
       } finally {
-        btn.disabled = false;
+        addBtn.disabled = false;
       }
-    });
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
   </script>
 </body>
 </html>

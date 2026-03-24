@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from routers import pages, queue, ws
+from routers import pages, queue, ws, search
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")

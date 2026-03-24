@@ -41,9 +41,11 @@ karaoke-night — a real-time karaoke queue app. Guests submit YouTube URLs from
 - [x] EC2 deployment with nginx + HTTPS
 - [x] Switched playback to YouTube IFrame API (yt-dlp approach on `ytdlp-playback` branch)
 - [x] Modularized backend into routers/ + state.py
+- [x] YouTube search on guest page (yt-dlp extract_flat, no stream extraction)
 
 ## What's Next
-Nothing scheduled. The app is fully functional.
+- Deploy search feature (push to main → GitHub Actions → EC2)
+- Update README.md to document search functionality (user writes this)
 
 ## Documentation Rules
 - After every feature, update the Current Status in CLAUDE.md

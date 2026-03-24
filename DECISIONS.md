@@ -20,6 +20,11 @@
 **Alternatives considered:** Flask, Django
 **Why:** Native async support pairs well with WebSockets. Lightweight enough for this project. Flask's WebSocket support is awkward; Django is overkill.
 
+## 015 — YouTube search via yt-dlp (search only, no stream extraction)
+**Decision:** `GET /search?q=` uses yt-dlp with `extract_flat: True` and `ytsearch5:` to return metadata only
+**Alternatives considered:** YouTube Data API v3, SerpAPI
+**Why:** yt-dlp search requires no API key, no quota, and no additional dependencies beyond what was already in requirements.txt. `extract_flat` means no video download or stream extraction — just metadata. Playback still goes through the IFrame API.
+
 ## 014 — Modular project structure
 **Decision:** Split main.py into `state.py` + `routers/` (pages, queue, ws)
 **Alternatives considered:** Keep everything in main.py

@@ -102,4 +102,4 @@ After that, every push to `main` deploys automatically.
 
 ## Guest Page
 
-Guests open `http://localhost:8000/guest` on their phone. They enter their name and a YouTube URL, and it gets added to the queue immediately.
+Guests open `http://localhost:8000/guest` on their phone. They enter their name, search for a song by title or artist, pick from the results, and add it to the queue. No YouTube URL needed.
