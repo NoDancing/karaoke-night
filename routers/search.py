@@ -8,6 +8,8 @@ router = APIRouter()
 def search_youtube(q: str):
     if not q.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty")
+    if "karaoke" not in q.lower():
+        q = q + " karaoke"
     ydl_opts = {
         "quiet": False,
         "extract_flat": True,
@@ -15,12 +17,12 @@ def search_youtube(q: str):
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            results = ydl.extract_info(f"ytsearch5:{q}", download=False)
+            results = ydl.extract_info(f"ytsearch10:{q}", download=False)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     if not results:
         raise HTTPException(status_code=500, detail="yt-dlp returned no results object")
-    return [
+    entries = [
         {
             "title": entry.get("title"),
             "url": f"https://www.youtube.com/watch?v={entry['id']}",
@@ -31,3 +33,5 @@ def search_youtube(q: str):
         for entry in (results.get("entries") or [])
         if entry and entry.get("id")
     ]
+    karaoke_entries = [e for e in entries if "karaoke" in (e["title"] or "").lower()]
+    return karaoke_entries if karaoke_entries else entries
