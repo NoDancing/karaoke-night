@@ -29,7 +29,7 @@
       background: #111;
       margin-bottom: 24px;
     }
-    #player-wrapper video {
+    #player-wrapper iframe {
       width: 100%;
       height: 100%;
     }
@@ -67,7 +67,7 @@
   <h1>🎤 Karaoke Night</h1>
   <div id="now-playing">Loading queue...</div>
   <div id="player-wrapper">
-    <video id="player" controls autoplay></video>
+    <div id="yt-player"></div>
   </div>
   <div id="idle-msg">No songs in the queue yet. Have guests add songs!</div>
   <audio id="bg-audio" loop></audio>
@@ -81,11 +81,21 @@
   </section>
 
   <script>
-    const video = document.getElementById('player');
     const bgAudio = document.getElementById('bg-audio');
+    let player = null;
+    let playerReady = false;
     let currentSong = null;
     let queue = [];
     let advancing = false;
+
+    function extractVideoId(url) {
+      const m = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+      return m ? m[1] : null;
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
     async function startBackground() {
       if (bgAudio.src && !bgAudio.paused) return;
@@ -101,15 +111,6 @@
     function stopBackground() {
       bgAudio.pause();
       bgAudio.src = '';
-    }
-
-    function escHtml(str) {
-      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
-    async function fetchQueue() {
-      const res = await fetch('/queue');
-      queue = await res.json();
     }
 
     function renderUpNext() {
@@ -137,8 +138,13 @@
       currentSong = null;
     }
 
+    async function fetchQueue() {
+      const res = await fetch('/queue');
+      queue = await res.json();
+    }
+
     async function playNext() {
-      if (advancing) return;
+      if (advancing || !playerReady) return;
       advancing = true;
       try {
         await fetchQueue();
@@ -148,32 +154,44 @@
           startBackground();
           return;
         }
+        const song = queue[0];
+        const videoId = extractVideoId(song.url);
+        if (!videoId) {
+          await fetch(`/queue/${song.id}`, { method: 'DELETE' });
+          advancing = false;
+          return playNext();
+        }
         stopBackground();
         showPlayer();
-        currentSong = queue[0];
+        currentSong = song;
         document.getElementById('now-playing').textContent = `Now singing: ${currentSong.singer}`;
         renderUpNext();
-
-        const res = await fetch('/queue/current/stream');
-        if (!res.ok) { showIdle(); return; }
-        const { stream_url } = await res.json();
-        video.src = stream_url;
-        video.play();
+        player.loadVideoById(videoId);
       } finally {
         advancing = false;
       }
     }
 
-    video.addEventListener('ended', async () => {
-      await removeCurrent();
-      await playNext();
-    });
-
-    video.addEventListener('error', async () => {
-      console.error('Video error — skipping');
-      await removeCurrent();
-      await playNext();
-    });
+    // YouTube IFrame API
+    window.onYouTubeIframeAPIReady = function () {
+      player = new YT.Player('yt-player', {
+        height: '100%',
+        width: '100%',
+        playerVars: { autoplay: 1, controls: 1, rel: 0 },
+        events: {
+          onReady: () => {
+            playerReady = true;
+            playNext();
+          },
+          onStateChange: async (e) => {
+            if (e.data === YT.PlayerState.ENDED) {
+              await removeCurrent();
+              await playNext();
+            }
+          },
+        },
+      });
+    };
 
     // WebSocket for real-time queue updates
     function connectWS() {
@@ -193,13 +211,10 @@
 
     // Fallback poll every 10s when idle
     setInterval(async () => {
-      if (!currentSong) {
-        await playNext();
-      }
+      if (!currentSong) playNext();
     }, 10000);
-
-    playNext();
   </script>
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script>
     const guestUrl = `${location.protocol}//${location.host}/guest`;
