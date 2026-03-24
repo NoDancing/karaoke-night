@@ -64,7 +64,7 @@
   </style>
 </head>
 <body>
-  <h1 id="event-title">🎤 Karaoke Night</h1>
+  <h1 id="event-title">Karaoke Night</h1>
   <div id="now-playing">Loading queue...</div>
   <div id="player-wrapper">
     <div id="yt-player"></div>
@@ -180,7 +180,7 @@ function renderUpNext() {
       ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
         queue = data.queue;
-        document.getElementById('event-title').textContent = '🎤 ' + data.title;
+        document.getElementById('event-title').textContent = '' + data.title;
         if (!currentSong && queue.length > 0) {
           playNext();
         } else {
