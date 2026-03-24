@@ -64,7 +64,7 @@
   </style>
 </head>
 <body>
-  <h1>🎤 Karaoke Night</h1>
+  <h1 id="event-title">🎤 Karaoke Night</h1>
   <div id="now-playing">Loading queue...</div>
   <div id="player-wrapper">
     <div id="yt-player"></div>
@@ -178,7 +178,9 @@ function renderUpNext() {
       const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
       const ws = new WebSocket(`${wsProto}//${location.host}/ws`);
       ws.onmessage = (e) => {
-        queue = JSON.parse(e.data);
+        const data = JSON.parse(e.data);
+        queue = data.queue;
+        document.getElementById('event-title').textContent = '🎤 ' + data.title;
         if (!currentSong && queue.length > 0) {
           playNext();
         } else {

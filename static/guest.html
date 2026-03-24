@@ -162,7 +162,7 @@
       ws = new WebSocket(`${wsProto}//${location.host}/ws`);
       ws.onmessage = (e) => {
         if (!myId) return;
-        const queue = JSON.parse(e.data);
+        const queue = JSON.parse(e.data).queue;
         const pos = queue.findIndex(s => s.id === myId);
         const msg = document.getElementById('message');
         if (pos === -1) {

@@ -55,3 +55,21 @@ async def reorder_queue(body: ReorderRequest):
     state.queue.extend(id_to_entry[i] for i in body.ids)
     await broadcast()
     return state.queue
+
+
+class TitleRequest(BaseModel):
+    title: str
+
+
+@router.get("/title")
+def get_title():
+    return {"title": state.event_title}
+
+
+@router.put("/title")
+async def set_title(body: TitleRequest):
+    if not body.title.strip():
+        raise HTTPException(status_code=400, detail="Title cannot be empty")
+    state.event_title = body.title.strip()
+    await broadcast()
+    return {"title": state.event_title}

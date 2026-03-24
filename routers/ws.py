@@ -5,8 +5,12 @@ import state
 router = APIRouter()
 
 
+def _message():
+    return json.dumps({"queue": state.queue, "title": state.event_title})
+
+
 async def broadcast():
-    message = json.dumps(state.queue)
+    message = _message()
     for ws in list(state.clients):
         try:
             await ws.send_text(message)
@@ -19,7 +23,7 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     state.clients.add(websocket)
     try:
-        await websocket.send_text(json.dumps(state.queue))
+        await websocket.send_text(_message())
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
