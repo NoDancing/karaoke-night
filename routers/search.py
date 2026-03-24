@@ -9,12 +9,17 @@ def search_youtube(q: str):
     if not q.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty")
     ydl_opts = {
-        "quiet": True,
+        "quiet": False,
         "extract_flat": True,
         "skip_download": True,
     }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        results = ydl.extract_info(f"ytsearch5:{q}", download=False)
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            results = ydl.extract_info(f"ytsearch5:{q}", download=False)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    if not results:
+        raise HTTPException(status_code=500, detail="yt-dlp returned no results object")
     return [
         {
             "title": entry.get("title"),
