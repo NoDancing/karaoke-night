@@ -1,18 +1,17 @@
 # Karaoke Night
 
-Simple interface for queuing and playing karaoke clips off of youtube.
+Simple interface for queuing and playing karaoke clips off of YouTube.
 
 ## How This Works
 
-- Host sets up on laptop
-
-- Host screen plays when it's time
-- Background music fills silence between songs
+- Host sets up on a laptop or TV
+- Guests scan a QR code to add songs from their phones
+- Host screen plays each song in order via the YouTube IFrame player
 
 ## Tech
 
 - FastAPI (Python)
-- Playback via yt-dlp + ffmpeg
+- Playback via YouTube IFrame API
 
 ## Setup & Running
 
@@ -32,13 +31,11 @@ Server runs at `http://localhost:8000`. API docs at `http://localhost:8000/docs`
 ## Host Screen
 
 Open `http://localhost:8000/host` on the screen guests will watch. It will:
-- Use yt-dlp to extract a direct stream URL for each song
-- Play video natively in the browser (no YouTube embed)
+- Play each song via the embedded YouTube player
 - Show the current singer's name
 - Display upcoming songs
 - Advance automatically when a video ends
-- Wake up every 10 seconds when the queue is empty
-- Displays a QR code in the corner — guests scan it to open the submission page
+- Display a QR code in the corner — guests scan it to open the submission page
 
 ## Testing
 
@@ -50,10 +47,6 @@ python -m pytest tests/ -v
 ```
 
 Tests cover all API endpoints and WebSocket broadcasting.
-
-## Background Music
-
-On the admin page, paste a YouTube URL into the Background Music field and hit Save. The host screen will play it as audio-only whenever the queue is empty, and stop automatically when the next singer's video starts.
 
 ## Admin Controls
 

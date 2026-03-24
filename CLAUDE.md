@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 ## Project
-karaoke-night — a real-time karaoke queue app. Guests submit YouTube URLs from their phones. The host screen plays them in order. Background music fills the silence between singers.
+karaoke-night — a real-time karaoke queue app. Guests submit YouTube URLs from their phones. The host screen plays them in order via the YouTube IFrame player.
 
 ## Rules for this project
 - One feature at a time
@@ -11,7 +11,7 @@ karaoke-night — a real-time karaoke queue app. Guests submit YouTube URLs from
 
 ## Tech Stack
 - Backend: FastAPI
-- Playback: yt-dlp + ffmpeg
+- Playback: YouTube IFrame API
 - State: in-memory Python list (no database)
 - Frontend: Vanilla HTML/JS
 - Real-time: WebSockets
@@ -30,22 +30,19 @@ karaoke-night — a real-time karaoke queue app. Guests submit YouTube URLs from
 - [x] DECISIONS.md started
 - [x] CLAUDE.md created
 - [x] Step 1: FastAPI server + queue API
-- [x] Step 2: Host playback page (yt-dlp stream extraction, auto-advances)
+- [x] Step 2: Host playback page (YouTube IFrame API, auto-advances)
 - [x] Step 3: Guest submission page
 - [x] Step 4: Real-time updates via WebSocket
 - [x] Step 5: Admin controls (skip, reorder, delete)
 - [x] Step 6: QR code on host screen
-- [x] Step 7: Background music between songs
+- [x] Step 7: Background music (removed — depended on yt-dlp)
 - [x] Unit tests
 - [x] Docker + GitHub Actions CI/CD
 - [x] EC2 deployment with nginx + HTTPS
+- [x] Switched playback to YouTube IFrame API (yt-dlp approach on `ytdlp-playback` branch)
 
 ## What's Next
-YouTube PO token fix: implement `bgutil-ytdlp-pot-provider` so all YouTube videos work from EC2, not just popular ones. Requires:
-- Add Node.js + npm to Dockerfile
-- Add `bgutil-ytdlp-pot-provider` to requirements.txt
-- Add `start.sh` to run bgutil server + uvicorn together
-- Update yt-dlp opts in main.py to use `web` client + cookies
+Nothing scheduled. The app is fully functional.
 
 ## Documentation Rules
 - After every feature, update the Current Status in CLAUDE.md
