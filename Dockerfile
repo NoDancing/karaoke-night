@@ -1,11 +1,4 @@
-FROM node:20-slim AS node-stage
-
 FROM python:3.12-slim
-COPY --from=node-stage /usr/local/bin/node /usr/local/bin/node
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

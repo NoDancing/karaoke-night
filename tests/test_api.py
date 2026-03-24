@@ -1,5 +1,4 @@
 import pytest
-from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 import main
 
@@ -90,26 +89,6 @@ def test_reorder_with_wrong_ids_returns_400():
     res = client.put("/queue/reorder", json={"ids": ["wrong-id"]})
     assert res.status_code == 400
 
-
-# --- GET /queue/current/stream ---
-
-def test_stream_returns_url():
-    client.post("/queue", json={"url": "https://youtube.com/watch?v=abc", "singer": "Alice"})
-    mock_info = {"url": "https://stream.example.com/video.mp4", "title": "Test Song"}
-    with patch("main.yt_dlp.YoutubeDL") as MockYDL:
-        instance = MagicMock()
-        instance.__enter__ = MagicMock(return_value=instance)
-        instance.__exit__ = MagicMock(return_value=False)
-        instance.extract_info.return_value = mock_info
-        MockYDL.return_value = instance
-        res = client.get("/queue/current/stream")
-    assert res.status_code == 200
-    assert res.json()["stream_url"] == "https://stream.example.com/video.mp4"
-
-
-def test_stream_empty_queue_returns_404():
-    res = client.get("/queue/current/stream")
-    assert res.status_code == 404
 
 
 # --- WebSocket /ws ---

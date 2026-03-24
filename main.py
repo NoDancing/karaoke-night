@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from typing import List
 import uuid
 from datetime import datetime
-import yt_dlp
 import json
 
 app = FastAPI()
@@ -13,7 +12,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 queue: List[dict] = []
 clients: set[WebSocket] = set()
-background_url: str | None = None
 
 
 async def broadcast():
@@ -100,50 +98,3 @@ async def reorder_queue(body: ReorderRequest):
     return queue
 
 
-class BackgroundUrlRequest(BaseModel):
-    url: str
-
-
-@app.put("/background/url", status_code=200)
-def set_background_url(body: BackgroundUrlRequest):
-    global background_url
-    background_url = body.url
-    return {"url": background_url}
-
-
-@app.get("/background/url")
-def get_background_url():
-    return {"url": background_url}
-
-
-@app.get("/background/stream")
-def get_background_stream():
-    if not background_url:
-        raise HTTPException(status_code=404, detail="No background music URL set")
-    ydl_opts = {
-        "format": "bestaudio/best",
-        "quiet": True,
-        "cookiefile": "cookies.txt",
-        "extractor_args": {"youtubepot-bgutilhttp": {"base_url": ["http://bgutil:4416"]}},
-        "js_runtimes": {"node": {}},
-    }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(background_url, download=False)
-    return {"stream_url": info["url"]}
-
-
-@app.get("/queue/current/stream")
-def get_stream():
-    if not queue:
-        raise HTTPException(status_code=404, detail="Queue is empty")
-    url = queue[0]["url"]
-    ydl_opts = {
-        "format": "best[ext=mp4][vcodec!=none][acodec!=none]/best[protocol=m3u8_native]/best",
-        "quiet": True,
-        "cookiefile": "cookies.txt",
-        "extractor_args": {"youtubepot-bgutilhttp": {"base_url": ["http://bgutil:4416"]}},
-        "js_runtimes": {"node": {}},
-    }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
-    return {"stream_url": info["url"], "title": info.get("title", "")}

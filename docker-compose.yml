@@ -1,14 +1,6 @@
 services:
-  bgutil:
-    image: brainicism/bgutil-ytdlp-pot-provider:latest
-    restart: unless-stopped
-
   app:
     image: ghcr.io/nodancing/karaoke-night:latest
     ports:
       - "8000:8000"
     restart: unless-stopped
-    volumes:
-      - /opt/cookies.txt:/app/cookies.txt
-    depends_on:
-      - bgutil

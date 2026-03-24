@@ -70,8 +70,7 @@
     <div id="yt-player"></div>
   </div>
   <div id="idle-msg">No songs in the queue yet. Have guests add songs!</div>
-  <audio id="bg-audio" loop></audio>
-  <div id="qr-box">
+<div id="qr-box">
     <div id="qr-code"></div>
     <p>Scan to add a song</p>
   </div>
@@ -81,7 +80,6 @@
   </section>
 
   <script>
-    const bgAudio = document.getElementById('bg-audio');
     let player = null;
     let playerReady = false;
     let currentSong = null;
@@ -97,23 +95,7 @@
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    async function startBackground() {
-      if (bgAudio.src && !bgAudio.paused) return;
-      try {
-        const res = await fetch('/background/stream');
-        if (!res.ok) return;
-        const { stream_url } = await res.json();
-        bgAudio.src = stream_url;
-        bgAudio.play();
-      } catch {}
-    }
-
-    function stopBackground() {
-      bgAudio.pause();
-      bgAudio.src = '';
-    }
-
-    function renderUpNext() {
+function renderUpNext() {
       const list = document.getElementById('queue-list');
       list.innerHTML = queue.slice(1).map(s =>
         `<li><span class="singer">${escHtml(s.singer)}</span><span class="url">${escHtml(s.url)}</span></li>`
@@ -151,7 +133,6 @@
         if (queue.length === 0) {
           currentSong = null;
           showIdle();
-          startBackground();
           return;
         }
         const song = queue[0];
@@ -161,7 +142,6 @@
           advancing = false;
           return playNext();
         }
-        stopBackground();
         showPlayer();
         currentSong = song;
         document.getElementById('now-playing').textContent = `Now singing: ${currentSong.singer}`;
