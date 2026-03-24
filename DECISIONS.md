@@ -20,6 +20,11 @@
 **Alternatives considered:** Flask, Django
 **Why:** Native async support pairs well with WebSockets. Lightweight enough for this project. Flask's WebSocket support is awkward; Django is overkill.
 
+## 014 — Modular project structure
+**Decision:** Split main.py into `state.py` + `routers/` (pages, queue, ws)
+**Alternatives considered:** Keep everything in main.py
+**Why:** A single-file backend caused repeated add/remove cycles as features changed. Splitting by concern means adding or removing a feature is isolated to one file. `state.py` holds shared in-memory state so routers don't need to import each other circularly.
+
 ## 005 — Frontend
 **Decision:** Vanilla HTML/JS
 **Alternatives considered:** React, HTMX

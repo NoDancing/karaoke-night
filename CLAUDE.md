@@ -40,6 +40,7 @@ karaoke-night — a real-time karaoke queue app. Guests submit YouTube URLs from
 - [x] Docker + GitHub Actions CI/CD
 - [x] EC2 deployment with nginx + HTTPS
 - [x] Switched playback to YouTube IFrame API (yt-dlp approach on `ytdlp-playback` branch)
+- [x] Modularized backend into routers/ + state.py
 
 ## What's Next
 Nothing scheduled. The app is fully functional.
