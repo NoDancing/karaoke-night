@@ -1,15 +1,16 @@
 import pytest
 from fastapi.testclient import TestClient
 import main
+import state
 
 
 @pytest.fixture(autouse=True)
 def clear_queue():
-    main.queue.clear()
-    main.clients.clear()
+    state.queue.clear()
+    state.clients.clear()
     yield
-    main.queue.clear()
-    main.clients.clear()
+    state.queue.clear()
+    state.clients.clear()
 
 
 client = TestClient(main.app)

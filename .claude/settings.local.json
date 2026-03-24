@@ -6,7 +6,9 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(git rm:*)",
-      "Bash(gh run:*)"
+      "Bash(gh run:*)",
+      "Bash(pip install:*)",
+      "Bash(python -m pytest tests/ -v)"
     ]
   }
 }
