@@ -23,6 +23,11 @@ async def broadcast():
             clients.discard(ws)
 
 
+@app.get("/")
+def index():
+    return RedirectResponse(url="/static/index.html")
+
+
 @app.get("/host")
 def host():
     return RedirectResponse(url="/static/host.html")

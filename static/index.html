@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Karaoke Night</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0d0d;
+      color: #fff;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 16px;
+    }
+    h1 { font-size: 2.5rem; letter-spacing: 3px; margin-bottom: 8px; }
+    p { color: #888; margin-bottom: 32px; }
+    .btn {
+      display: block;
+      width: 260px;
+      padding: 18px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+    .btn-host { background: #f0c040; color: #000; }
+    .btn-guest { background: #222; color: #fff; border: 1px solid #444; }
+    .btn:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <h1>🎤 Karaoke Night</h1>
+  <p>What are you here for?</p>
+  <a class="btn btn-host" href="/host">I'm the Host</a>
+  <a class="btn btn-guest" href="/guest">I'm a Guest</a>
+</body>
+</html>
